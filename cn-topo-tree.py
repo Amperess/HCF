@@ -42,7 +42,7 @@ class MyTopo( Topo ):
 			pSwitch = parent[0]
 			lip = parent[1]
 			rip = parent[2]
-			middle = findMiddle(lip, rip)
+			middle = self.findMiddle(lip, rip)
 
 			host1 = self.addHost("h" + str(middle-5))
 			host2 = self.addHost("h" + str(middle-4))
