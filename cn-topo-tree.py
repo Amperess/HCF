@@ -37,7 +37,7 @@ class MyTopo( Topo ):
 			depth+=1
 
 		# create 5 children host machines as children of each leaf switch
-		while len(q2) > 0:
+		while len(q1) > 0:
 			parent = q1.pop[0]
 			pSwitch = parent[0]
 			lip = parent[1]
