@@ -38,7 +38,7 @@ class MyTopo( Topo ):
 
 		# create 5 children host machines as children of each leaf switch
 		while len(q1) > 0:
-			parent = q1.pop[0]
+			parent = q1.pop(0)
 			pSwitch = parent[0]
 			lip = parent[1]
 			rip = parent[2]
