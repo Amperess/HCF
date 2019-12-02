@@ -20,8 +20,6 @@ class LinuxRouter( Node ):
 class MyTopo( Topo ):
 
 	def build( self, **_opts ):
-
-        #layer1
         r0 = self.addNode( 'r0', cls=LinuxRouter, ip= '10.0.0.1/8')
         q1 = [(r0, 'r0', '10.0.0.1/8')]
         q2 = []
