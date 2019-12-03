@@ -28,20 +28,21 @@ class MyTopo( Topo ):
 
 		for layer in range(1,4):
 		    for r in range(2**(layer-1)):
-			
-			print("The queue at layer " + str(layer) + " is " + str(q1))
+
 			pRouter = q1.pop(0)
 
 			#left child
 			newData = ipNums.pop(0)
 			newRouter = self.addNode(newData[0], cls=LinuxRouter, ip=newData[1])
 			self.addLink(pRouter[0], newRouter, intfName2=str(pRouter[1])+"-eth1", params2={'ip':newData[1]})
+            print("Added link between ", pRouter[1], " : ", pRouter[2], " and ", newData[0], " : ", newData[1], " forwarding anything following ", newData[1], " out of ", pRouter[1], "-eth1")
 			q2.append((newRouter, newData[0], newData[1]))
 
 			#right child
 			newData = ipNums.pop(0)
 			newRouter = self.addNode(newData[0], cls=LinuxRouter, ip=newData[1])
 			self.addLink(pRouter[0], newRouter, intfName2=str(pRouter[1])+"-eth2", params2={'ip':newData[1]})
+            print("Added link between ", pRouter[1], " : ", pRouter[2], " and ", newData[0], " : ", newData[1], " forwarding anything following ", newData[1], " out of ", pRouter[1], "-eth2")
 			q2.append((newRouter, newData[0], newData[1]))
 		    q1 = q2
 		    q2 = []
