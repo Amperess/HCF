@@ -1,15 +1,14 @@
 import os
 
-ipAddrs = ["172.217.12.206", "31.13.71.36", "128.6.43.6"]
-ipAddrsDict = {}
+class HopCountTable():
 
-class hopCountTable():
+    ipAddrsDict = {}
 
     '''
     Given traceroute responses, populate the ipAddrsDict with
     indices as the indices and hop counts as the values
     '''
-    def parseTraceRoutes(resps, ipAddrs):
+    def parseTraceRoutes(self, resps, ipAddrs):
         for resp, ipAddr in zip(resps, ipAddrs):
             linesList = resp.split("\n")
             lastLine = linesList[len(linesList)-1]
@@ -20,13 +19,13 @@ class hopCountTable():
                 int(count)
             except:
                 count = lastLine.split(" ")[1]
-            ipAddrsDict[ipAddr] = count
+            self.ipAddrsDict[ipAddr] = count
 
     '''
     Given a list of IP addresses, run traceroutes on each of them and
     record the responses
     '''
-    def issueTraceRoutes(ipAddrs):
+    def issueTraceRoutes(self, ipAddrs):
         resps = []
         for ipAddr in ipAddrs:
             resps.append(os.popen("traceroute " + ipAddr).read())
@@ -38,14 +37,22 @@ class hopCountTable():
     return True if it doesn't match (and therefore is spoofed)
     and False otherwise
     '''
-    def hcLookup(ip, hc):
+    def hcLookup(self, ip, hc):
         hc = str(hc)
-        if ipAddrsDict[ip] != hc:
+        if self.ipAddrsDict[ip] != hc:
             return True
         else:
             return False
 
+    def __init__(self, ipAddrs):
+        self.parseTraceRoutes(self.issueTraceRoutes(ipAddrs), ipAddrs)
+
+"""
+class run():
     if __name__ == '__main__':
-        parseTraceRoutes(issueTraceRoutes(ipAddrs), ipAddrs)
-        print(ipAddrsDict)
-        print(hcLookup("128.6.43.6", 5))
+        ipAddrs = ["172.217.12.206", "31.13.71.36", "128.6.43.6"]
+        hcp = HopCountTable(ipAddrs)
+        print("Hello world")
+        print(hcp.ipAddrsDict)
+        print(hcp.hcLookup("128.6.43.6", 5))
+"""
