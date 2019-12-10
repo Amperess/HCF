@@ -44,10 +44,13 @@ class HopCountTable():
         else:
             return False
 
+    '''
+    Initialize a table with the given ip addresses
+    '''
     def __init__(self, ipAddrs):
         self.parseTraceRoutes(self.issueTraceRoutes(ipAddrs), ipAddrs)
 
-"""
+'''
 class run():
     if __name__ == '__main__':
         ipAddrs = ["172.217.12.206", "31.13.71.36", "128.6.43.6"]
@@ -55,4 +58,4 @@ class run():
         print("Hello world")
         print(hcp.ipAddrsDict)
         print(hcp.hcLookup("128.6.43.6", 5))
-"""
+'''
