@@ -45,6 +45,27 @@ class HopCountTable():
             return False
 
     '''
+    Given an IP address and a hop count calculated from the TTL
+    return True if it doesn't fall between the expected hc - diff and
+    expected hc + diff (and therefore is spoofed) and False otherwise
+    '''
+    def hcLookupRange(self, ip, hc, diff):
+        hc = int(hc)
+        diff = int(diff)
+        expected_hc = int(self.ipAddrsDict[ip])
+        if hc > (expected_hc + diff) or hc < (expected_hc - diff):
+            return True
+        else:
+            return False
+
+    '''
+    If an address seemed spoofed but it formed a legit TCP connection
+    update the entry with the updated hop count
+    '''
+    def updateEntry(self, ip, hc):
+        self.ipAddrsDict[ip] = str(hc)
+
+    '''
     Initialize a table with the given ip addresses
     '''
     def __init__(self, ipAddrs):
@@ -57,5 +78,8 @@ class run():
         hcp = HopCountTable(ipAddrs)
         print("Hello world")
         print(hcp.ipAddrsDict)
-        print(hcp.hcLookup("128.6.43.6", 5))
+        print(hcp.hcLookup("128.6.43.6", 6))
+        print(hcp.hcLookupRange("128.6.43.6", 6, 2))
+        hcp.updateEntry("128.6.43.6", 6)
+        print(hcp.ipAddrsDict)
 '''
