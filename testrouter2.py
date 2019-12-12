@@ -28,7 +28,7 @@ class NetworkTopo( Topo ):
         router1 = self.addNode('router1', cls=LinuxRouter)
 	router2 = self.addNode('router2', cls=LinuxRouter)	
 
-        self.addLink( router1, router2, intfName1='r1-eth0', intfName2='r2-eth0',params1={'ip': '10.0.3.10/24'}, params2={ 'ip' : '10.0.3.20/24' } )
+	self.addLink(router1, router2, intfName1='r1-eth0', intfName2='r2-eth0')
 
 	h1 = self.addHost( 'h1', ip='10.0.1.100/24',
                            defaultRoute='via 10.0.1.10' )
