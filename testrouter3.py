@@ -1,0 +1,101 @@
+#!/usr/bin/python
+
+from mininet.topo import Topo
+from mininet.net import Mininet
+from mininet.node import Node
+from mininet.log import setLogLevel, info
+from mininet.cli import CLI
+
+
+class LinuxRouter( Node ):
+    "A Node with IP forwarding enabled."
+
+    def config( self, **params ):
+        super( LinuxRouter, self).config( **params )
+        # Enable forwarding on the router
+        self.cmd( 'sysctl net.ipv4.ip_forward=1' )
+
+    def terminate( self ):
+        self.cmd( 'sysctl net.ipv4.ip_forward=0' )
+        super( LinuxRouter, self ).terminate()
+
+
+class NetworkTopo( Topo ):
+    "A LinuxRouter connecting three IP subnets"
+
+    def build( self, **_opts ):
+
+        router1 = self.addNode('router1', cls=LinuxRouter)
+	router2 = self.addNode('router2', cls=LinuxRouter)	
+	router3 = self.addNode('router3', cls=LinuxRouter)	
+
+        self.addLink( router1, router2, intfName1='r1-eth0', intfName2='r2-eth0')	
+	self.addLink( router2, router3, intfName1='r2-eth2', intfName2='r3-eth0')
+
+	h1 = self.addHost( 'h1', ip='10.0.1.100/24',
+                           defaultRoute='via 10.0.1.10' )
+        h2 = self.addHost( 'h2', ip='10.0.2.100/24',
+                           defaultRoute='via 10.0.2.100' )
+	h3 = self.addHost( 'h3', ip='10.0.3.100/24')
+
+	self.addLink( router1, h1, intfName1='r1-eth1', intfName2='h1-eth0', params1 = {'ip':'10.0.1.10/24'}, params2={'ip':'10.0.1.100/24'})
+	self.addLink( router2, h2, intfName1='r2-eth1', intfName2='h2-eth0', params1 = {'ip':'10.0.2.20/24'}, params2={'ip':'10.0.2.100/24'})
+	self.addLink( router3, h3, intfName1='r3-eth1', intfName2='h3-eth0', params1 = {'ip':'10.0.3.30/24'}, params2={'ip':'10.0.3.100/24'})
+
+def run():
+    "Test linux router"
+    topo = NetworkTopo()
+    net = Mininet( topo=topo )  # controller is used by s1-s3
+    net.start()
+
+    # Get all the devices for command references
+    router1 = net.get('router1')
+    router2 = net.get('router2')
+    router3 = net.get('router3')
+    h1 = net.get('h1')
+    h2 = net.get('h2')
+    h3 = net.get('h3')
+
+    # Add all the host static routes
+    router1.cmd('ip route add 10.0.2.0/24 dev r1-eth0')    
+    router1.cmd('ip route add 10.0.3.0/24 dev r1-eth0')
+    router2.cmd('ip route add 10.0.1.0/24 dev r2-eth0')
+    router2.cmd('ip route add 10.0.3.0/24 dev r2-eth2')
+    router3.cmd('ip route add 10.0.1.0/24 dev r3-eth0')
+    router3.cmd('ip route add 10.0.2.0/24 dev r3-eth0')
+
+    # Add all the static routes
+    router1.cmd('ip route add 10.0.0.5/32 dev r1-eth0')    
+    router1.cmd('ip route add 10.0.0.6/32 dev r1-eth0')
+    router2.cmd('ip route add 10.0.0.4/32 dev r2-eth0')
+    router2.cmd('ip route add 10.0.0.6/32 dev r2-eth2')
+    router3.cmd('ip route add 10.0.1.4/32 dev r3-eth0')
+    router3.cmd('ip route add 10.0.2.5/32 dev r3-eth0')
+
+    h1.cmd('ip route add 10.0.0.0/8 dev h1-eth0')
+    h2.cmd('ip route add 10.0.0.0/8 dev h2-eth0')
+    h3.cmd('ip route add 10.0.0.0/8 dev h3-eth0')	
+    #h1.cmd('ip route add 10.0.2.0/24 dev h1-eth0') 
+    #h1.cmd('ip route add 10.0.3.0/24 dev h1-eth0') 
+    #h2.cmd('ip route add 10.0.1.0/24 dev h2-eth0')
+    #h2.cmd('ip route add 10.0.3.0/24 dev h2-eth0') 
+    #h3.cmd('ip route add 10.0.1.0/24 dev h3-eth0')
+    #h3.cmd('ip route add 10.0.2.0/24 dev h3-eth0')
+
+    router1.cmd('echo 1 > /proc/sys/net/ipv4/conf/r1-eth0/proxy_arp')
+    router1.cmd('echo 1 > /proc/sys/net/ipv4/conf/r1-eth1/proxy_arp')
+    router2.cmd('echo 1 > /proc/sys/net/ipv4/conf/r2-eth0/proxy_arp')
+    router2.cmd('echo 1 > /proc/sys/net/ipv4/conf/r2-eth1/proxy_arp')
+    router2.cmd('echo 1 > /proc/sys/net/ipv4/conf/r2-eth2/proxy_arp')
+    router3.cmd('echo 1 > /proc/sys/net/ipv4/conf/r3-eth0/proxy_arp')
+    router3.cmd('echo 1 > /proc/sys/net/ipv4/conf/r3-eth1/proxy_arp')
+    h1.cmd('echo 1 > /proc/sys/net/ipv4/conf/h1-eth0/proxy_arp')
+    h2.cmd('echo 1 > /proc/sys/net/ipv4/conf/h2-eth0/proxy_arp')
+    h3.cmd('echo 1 > /proc/sys/net/ipv4/conf/h3-eth0/proxy_arp')
+
+    CLI( net )
+    net.stop()
+
+if __name__ == '__main__':
+    setLogLevel( 'info' )
+    run()
