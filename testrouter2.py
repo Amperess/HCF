@@ -26,7 +26,7 @@ class NetworkTopo( Topo ):
     def build( self, **_opts ):
 
         router1 = self.addNode('router1', cls=LinuxRouter)
-	router2 = self.addNode('router2', cls=LinuxRouter)
+	router2 = self.addNode('router2', cls=LinuxRouter)	
 
         self.addLink( router1, router2, intfName1='r1-eth0', intfName2='r2-eth0',params1={'ip': '10.0.3.10/24'}, params2={ 'ip' : '10.0.3.20/24' } )
 
@@ -46,9 +46,22 @@ def run():
     router1 = net.get('router1')
     router2 = net.get('router2')
 
-    router1.cmd('ip route add 10.0.2.0/24 dev r1-eth0')    
-    router2.cmd('ip route add 10.0.1.0/24 dev r2-eth0')
+    h1 = net.get('h1')
+    h2 = net.get('h2')
 
+    router1.cmd('ip route add 10.0.2.0/24 dev r1-eth0')    
+    router2.cmd('ip route add 10.0.1.0/24 dev r2-eth0')	
+    h1.cmd('ip route add 10.0.2.0/24 dev h1-eth0') 
+    h2.cmd('ip route add 10.0.1.0/24 dev h2-eth0') 
+
+
+    router1.cmd('echo 1 > /proc/sys/net/ipv4/conf/r1-eth0/proxy_arp')
+    router1.cmd('echo 1 > /proc/sys/net/ipv4/conf/r1-eth1/proxy_arp')
+    router2.cmd('echo 1 > /proc/sys/net/ipv4/conf/r2-eth0/proxy_arp')
+    router2.cmd('echo 1 > /proc/sys/net/ipv4/conf/r2-eth1/proxy_arp')
+    h1.cmd('echo 1 > /proc/sys/net/ipv4/conf/h1-eth0/proxy_arp')
+    h2.cmd('echo 1 > /proc/sys/net/ipv4/conf/h2-eth0/proxy_arp')
+    
     info( '*** Routing Table on Router:\n' )
     info( net[ 'router1' ].cmd( 'route' ) )
     CLI( net )
