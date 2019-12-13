@@ -30,10 +30,16 @@ def PacketMonitoring():
         iph_length = ihl * 4
         ttl = iphead[5]
         source_addr = socket.inet_ntoa(iphead[8])
-        source_addr = socket.inet_ntop(socket.AF_INET, source_addr)
         dest_addr = socket.inet_ntoa(iphead[9])
-        dest_addr = socket.inet_ntop(socket.AF_INET, dest_addr)
-
+        udp_header = packet[iph_length:iph_length+8]
+        udphead = unpack("!HHHH",udp_header)
+        source_port = udphead[0]
+        dest_port = udphead[1]
+        source_addr = socket.inet_ntop(socket.AF_INET, source_addr)
+        udp_header_length = 8
+        source_port = socket.ntohs(udphead[0])
+        dest_port = socket.ntohs(udphead[1])
+        
         print("\nSource IP address: ", source_addr)
         print("TTL: ", ttl)
 
