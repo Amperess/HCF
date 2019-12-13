@@ -40,9 +40,7 @@ class HopCountTable():
     '''
     def hcLookup(self, ip, hc):
         hc = str(hc)
-        
-	print("Checking " + str(ip) + " for hc: " + str(hc))
-	print("Result " + str(self.ipAddrsDict[ip]))
+
 	if str(self.ipAddrsDict[ip]) != hc:
             return True
         else:
@@ -78,15 +76,3 @@ class HopCountTable():
 	self.ipAddrsDict["10.0.2.101"] = "3"
 	#self.ipAddrsDict["10.0.3.100"] = "3"
 	print(self.ipAddrsDict)
-'''
-class run():
-    if __name__ == '__main__':
-        ipAddrs = ["172.217.12.206", "31.13.71.36", "128.6.43.6"]
-        hcp = HopCountTable(ipAddrs)
-        print("Hello world")
-        print(hcp.ipAddrsDict)
-        print(hcp.hcLookup("128.6.43.6", 6))
-        print(hcp.hcLookupRange("128.6.43.6", 6, 2))
-        hcp.updateEntry("128.6.43.6", 6)
-        print(hcp.ipAddrsDict)
-'''
