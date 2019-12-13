@@ -74,9 +74,9 @@ class HopCountTable():
     '''
     def __init__(self, ipAddrs):
         print("Running traceroutes...")
-	#self.parseTraceRoutes(self.issueTraceRoutes(ipAddrs), ipAddrs)
-	self.ipAddrsDict["10.0.2.100"] = "2"
-	self.ipAddrsDict["10.0.3.100"] = "3"
+	self.parseTraceRoutes(self.issueTraceRoutes(ipAddrs), ipAddrs)
+	self.ipAddrsDict["10.0.2.101"] = "3"
+	#self.ipAddrsDict["10.0.3.100"] = "3"
 	print(self.ipAddrsDict)
 '''
 class run():
