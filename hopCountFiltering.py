@@ -1,5 +1,4 @@
 from hopCountTable import HopCountTable
-from scapy.all import *
 
 """
 Manages the state between alert and action
@@ -23,48 +22,66 @@ class HCFStateManager():
         for i in range(30):
             self.l.append(0)
 
+    """
+    Change state from 0 (alert, no dropping) and 1 (action, drop spoofed packets)
+    """
     def switch_state(self):
         if self.state == 0:
             self.state = 1
         else:
             self.state = 0
 
+    """
+    Given a packet, lookup it's initial TTL from it's actual TTL and check if
+    it's spoofed
+    """
     def inspect_packet(self, packet):
-        ttl = packet.ttl
-        src = packet.src
+        ttl = packet['ttl']
+        src = packet['src']
+
+        # choose the smallest initial TTL that is larger than it
         initialTTL = 2
         for i in self.initialTTLs:
             if ttl < i:
                 initialTTL = i
                 break
         hc = initialTTL - ttl
-        if not self.hct.hcLookup(src, hc):
-            self.hct.updateEntry(src, hc)
+
+        # We can only update the table if a legit TCP connection is formed
+        # by a "spoofed" user, showing a legit different hop count
+
+        # if not self.hct.hcLookup(src, hc):
+        #    self.hct.updateEntry(src, hc)
+
         return self.hct.hcLookup(src, hc)
 
+    """
+    Check the last 30 packets to see the average number of spoofed packets
+    """
     def average(self, spoofed):
         self.l.append(spoofed)
         self.l.pop(0)
         return sum(self.l)/len(self.l)
 
     """
-    Need to run scapy server on the nodes
-    scapy.srloop(pingr)
+    Return 1 to accept or -1 to flag as spoofed and -2 to drop
     """
-    def run(self):
+    def accept_packet(self, packet):
         while True:
-            unans, ans = sr(packet)
-            spoofed = self.inspect_packet(ans)
+            spoofed = self.inspect_packet(packet)
             t = self.average(spoofed)
             if self.state:
-                if spoofed:
-                    self.dropped += 1
-                else:
-                    self.accepted += 1
                 if t <= self.threshold_action:
                     self.switch_state()
+                if spoofed:
+                    self.dropped += 1
+                    return -2
+                else:
+                    self.accepted += 1
+                    return 1
             else:
                 if spoofed:
                     if t > self.threshold_alert:
                         self.switch_state()
                 self.accepted += 1
+                return -1
