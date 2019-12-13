@@ -52,7 +52,6 @@ class HCFStateManager():
 
         # if not self.hct.hcLookup(src, hc):
         #    self.hct.updateEntry(src, hc)
-	print("Looking up : " + str(hc) + " for " + str(src))
 	print("Spoofed " + str(self.hct.hcLookup(src, hc)))
 	return self.hct.hcLookup(src, hc)
 
@@ -62,10 +61,9 @@ class HCFStateManager():
     def average(self, spoofed):
         self.l.append(spoofed)
         self.l.pop(0)
-	print(self.l)
 	spoofRate = 1.0*sum(self.l)/len(self.l)
 	return spoofRate
-	
+
     """
     Return 1 to accept or -1 to flag as spoofed and -2 to drop
     """
@@ -93,7 +91,7 @@ class HCFStateManager():
                         self.switch_state()
 		   # accept it but it got flagged
 		    self.accepted += 1
-		    return -1	
+		    return -1
                 # Not spoofed, accept it
 		else:
 		    self.accepted += 1
