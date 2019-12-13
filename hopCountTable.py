@@ -19,7 +19,8 @@ class HopCountTable():
                 int(count)
             except:
                 count = lastLine.split(" ")[1]
-            self.ipAddrsDict[ipAddr] = count
+	    # Need to subtract one because diff between ttl and traceroute
+            self.ipAddrsDict[ipAddr] = str(int(count)-1)
 
     '''
     Given a list of IP addresses, run traceroutes on each of them and
@@ -39,7 +40,10 @@ class HopCountTable():
     '''
     def hcLookup(self, ip, hc):
         hc = str(hc)
-        if self.ipAddrsDict[ip] != hc:
+        
+	print("Checking " + str(ip) + " for hc: " + str(hc))
+	print("Result " + str(self.ipAddrsDict[ip]))
+	if str(self.ipAddrsDict[ip]) != hc:
             return True
         else:
             return False
@@ -69,7 +73,10 @@ class HopCountTable():
     Initialize a table with the given ip addresses
     '''
     def __init__(self, ipAddrs):
-        self.parseTraceRoutes(self.issueTraceRoutes(ipAddrs), ipAddrs)
+        print("Running traceroutes...")
+	#self.parseTraceRoutes(self.issueTraceRoutes(ipAddrs), ipAddrs)
+	self.ipAddrsDict["10.0.2.100"] = "2"
+	self.ipAddrsDict["10.0.3.100"] = "3"
 	print(self.ipAddrsDict)
 '''
 class run():

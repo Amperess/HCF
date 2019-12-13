@@ -24,22 +24,14 @@ def PacketMonitoring():
         packet = packet[0]
         ip_header = packet[0:20]
         iphead = unpack ("!BBHHHBBH4s4s", ip_header)
-        version_ihl = iphead[0]
+	version_ihl = iphead[0]
         version = version_ihl >> 4
         ihl = version_ihl & 0xF
         iph_length = ihl * 4
         ttl = iphead[5]
         source_addr = socket.inet_ntoa(iphead[8])
         dest_addr = socket.inet_ntoa(iphead[9])
-        udp_header = packet[iph_length:iph_length+8]
-        udphead = unpack("!HHHH",udp_header)
-        source_port = udphead[0]
-        dest_port = udphead[1]
-        source_addr = socket.inet_ntop(socket.AF_INET, source_addr)
-        udp_header_length = 8
-        source_port = socket.ntohs(udphead[0])
-        dest_port = socket.ntohs(udphead[1])
-        
+
         print("\nSource IP address: ", source_addr)
         print("TTL: ", ttl)
 

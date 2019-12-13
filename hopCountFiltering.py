@@ -52,8 +52,9 @@ class HCFStateManager():
 
         # if not self.hct.hcLookup(src, hc):
         #    self.hct.updateEntry(src, hc)
-
-        return self.hct.hcLookup(src, hc)
+	print("Looking up : " + str(hc) + " for " + str(src))
+	print("Spoofed " + str(self.hct.hcLookup(src, hc)))
+	return self.hct.hcLookup(src, hc)
 
     """
     Check the last 30 packets to see the average number of spoofed packets
@@ -61,8 +62,10 @@ class HCFStateManager():
     def average(self, spoofed):
         self.l.append(spoofed)
         self.l.pop(0)
-        return sum(self.l)/len(self.l)
-
+	print(self.l)
+	spoofRate = 1.0*sum(self.l)/len(self.l)
+	return spoofRate
+	
     """
     Return 1 to accept or -1 to flag as spoofed and -2 to drop
     """
@@ -71,17 +74,27 @@ class HCFStateManager():
             spoofed = self.inspect_packet(packet)
             t = self.average(spoofed)
             if self.state:
-                if t <= self.threshold_action:
+                # In drop phase but low enough to swtich
+		if t <= self.threshold_alert:
                     self.switch_state()
-                if spoofed:
+		# Spoofed in drop phase, return -2
+		if spoofed:
                     self.dropped += 1
                     return -2
-                else:
+                # Not spoofed in alert phase, return 1
+		else:
                     self.accepted += 1
                     return 1
             else:
+		# spoofed in alert phase
                 if spoofed:
-                    if t > self.threshold_alert:
+		    # might change to drop phase
+		    if t > self.threshold_action:
                         self.switch_state()
-                self.accepted += 1
-                return -1
+		   # accept it but it got flagged
+		    self.accepted += 1
+		    return -1	
+                # Not spoofed, accept it
+		else:
+		    self.accepted += 1
+                    return 1
