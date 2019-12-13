@@ -70,7 +70,7 @@ class HopCountTable():
     '''
     def __init__(self, ipAddrs):
         self.parseTraceRoutes(self.issueTraceRoutes(ipAddrs), ipAddrs)
-
+	print(self.ipAddrsDict)
 '''
 class run():
     if __name__ == '__main__':
